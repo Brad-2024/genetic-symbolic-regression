@@ -63,8 +63,8 @@ class Tree:
 
     def crossover(self, other_tree):
         new_tree1 = copy.deepcopy(self)
-        tree1_rand = new_tree1.find_random_node()
-        tree2_rand = other_tree.find_random_node()
+        tree1_rand = find_random_node(new_tree1)
+        tree2_rand = find_random_node(other_tree)
 
         tree1_rand.value = tree2_rand.value
         tree1_rand.left = tree2_rand.left
@@ -114,12 +114,13 @@ if __name__ == "__main__":
     # print(tree2.tree_to_string())
     # print(tree.tree_to_string())
 
-    tree.mutate()
-    print(tree.tree_to_string())
+    mutated_tree = tree.mutate()
+    print(mutated_tree.tree_to_string())
 
-    tree2 = Tree()
-    crossover = tree.crossover(tree2)
-    print(crossover.tree_to_string())
+    # tree2 = Tree()
+    # print(tree2.tree_to_string())
+    # crossover = tree.crossover(tree2)
+    # print(crossover.tree_to_string())
 
 
 
