@@ -1,5 +1,6 @@
 import random
 import copy
+import operator
     
 
 def generate_random_node(root=False):
@@ -48,6 +49,7 @@ class Node:
 class Tree:
     def __init__(self):
         self.root = generate_random_node(root=True)
+        self.operationDict = {"+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv}
 
     def clone(self):
         return copy.deepcopy(self)
@@ -80,6 +82,7 @@ class Tree:
         return self.getNode(self.root, random_num)
 
     def get_fitness(self, x):
+
         string = self.tree_to_string()
         return eval(string.replace("x", str(x)))
 
@@ -113,9 +116,9 @@ class Tree:
 
 
 if __name__ == "__main__":
-    tree = Tree()
-    #string = tree.tree_to_string()
-    print(tree.tree_to_string())
+    # tree = Tree()
+    # string = tree.tree_to_string()
+    # print(tree.tree_to_string())
 
     # new_tree = copy.deepcopy(tree)
     # new_tree.root.value = "/"
@@ -142,9 +145,14 @@ if __name__ == "__main__":
     # mutated_tree = tree.mutate()
     # print(mutated_tree.tree_to_string())
 
-    tree2 = Tree()
-    print(tree2.tree_to_string())
-    crossover = tree.crossover(tree2)
-    print(crossover.tree_to_string())
+    # tree2 = Tree()
+    # print(tree2.tree_to_string())
+    # crossover = tree.crossover(tree2)
+    # print(crossover.tree_to_string())
+
+    dict = {"+": operator.add, "-": operator.sub}
+
+    print(dict["-"](4,3))
+
 
 
