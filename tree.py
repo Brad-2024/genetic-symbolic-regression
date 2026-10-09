@@ -20,12 +20,13 @@ class Node:
         self.left = None
         self.right = None
 
+#Operation dict allows us to convert string values into operations
 _OPERATIONDICT = {
-            "+": operator.add, 
-            "-": operator.sub, 
-            "*": operator.mul, 
-            "/": operator.truediv
-        }
+    "+": operator.add, 
+    "-": operator.sub, 
+    "*": operator.mul, 
+    "/": operator.truediv
+}
 
 class Tree:
     def __init__(self):
@@ -61,6 +62,7 @@ class Tree:
         random_num = random.randint(1, num_nodes)
         return self.getNode(self.root, random_num)
 
+    #Returns the tree evaluated given an x
     def get_fitness(self, x):
         return self._get_fitness_helper(self.root, x)
 
@@ -73,7 +75,7 @@ class Tree:
         else:
             return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x), self._get_fitness_helper(node.right, x))
 
-
+    #Returns human readable (kinda) equation
     def tree_to_string(self):
         def traverse(node):
             if node is None:
@@ -81,6 +83,7 @@ class Tree:
             return f"({traverse(node.left)} {node.value} {traverse(node.right)})"
         return traverse(self.root)
 
+    #Gets node based on number in tree
     def getNode(self, node, num):
         myCount = 1
         if node.left:
@@ -92,7 +95,7 @@ class Tree:
         else:
             return self.getNode(node.left,num)
 
-
+    #Counts total number of nodes in tree
     def count_num_nodes(self, node):
         count = 1
         if node.left:
