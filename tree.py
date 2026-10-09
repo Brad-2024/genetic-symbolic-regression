@@ -20,10 +20,16 @@ class Node:
         self.left = None
         self.right = None
 
+_OPERATIONDICT = {
+            "+": operator.add, 
+            "-": operator.sub, 
+            "*": operator.mul, 
+            "/": operator.truediv
+        }
+
 class Tree:
     def __init__(self):
         self.root = generate_random_node(root=True)
-        self.operationDict = {"+": operator.add, "-": operator.sub, "*": operator.mul, "/": operator.truediv}
 
     def clone(self):
         return copy.deepcopy(self)
@@ -56,9 +62,17 @@ class Tree:
         return self.getNode(self.root, random_num)
 
     def get_fitness(self, x):
+        return self._get_fitness_helper(self.root, x)
 
-        string = self.tree_to_string()
-        return eval(string.replace("x", str(x)))
+    def _get_fitness_helper(self, node, x):
+        if node.value not in _OPERATIONDICT.keys():
+            if node.value == 'x':
+                return x
+            else:
+                return float(node.value)
+        else:
+            return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x), self._get_fitness_helper(node.right, x))
+
 
     def tree_to_string(self):
         def traverse(node):
@@ -90,9 +104,10 @@ class Tree:
 
 
 if __name__ == "__main__":
-    # tree = Tree()
-    # string = tree.tree_to_string()
-    # print(tree.tree_to_string())
+    tree = Tree()
+    string = tree.tree_to_string()
+    print(tree.tree_to_string())
+    print(tree.get_fitness(1))
 
     # new_tree = copy.deepcopy(tree)
     # new_tree.root.value = "/"
@@ -123,10 +138,3 @@ if __name__ == "__main__":
     # print(tree2.tree_to_string())
     # crossover = tree.crossover(tree2)
     # print(crossover.tree_to_string())
-
-    dict = {"+": operator.add, "-": operator.sub}
-
-    print(dict["-"](4,3))
-
-
-
