@@ -1,5 +1,6 @@
 import random
 import copy
+import operator
     
 
 def generate_random_node(root=False):
@@ -13,37 +14,19 @@ def generate_random_node(root=False):
         node.right = generate_random_node()
     return node
 
-def find_random_node(tree):
-    baseNode = tree.root
-    num_nodes = count_num_nodes(baseNode)
-    random_num = random.randint(1, num_nodes)
-    return getNode(tree.root, random_num)
-
-def getNode(node, num):
-    myCount = 1
-    if node.left:
-        myCount = count_num_nodes(node.left) + 1
-    if myCount == num:
-        return node
-    if num > myCount:
-        return getNode(node.right, num-myCount)
-    else: 
-        return getNode(node.left,num)
-
-
-def count_num_nodes(node):
-    count = 1
-    if node.left:
-        count = count + count_num_nodes(node.left)
-    if node.right:
-        count = count + count_num_nodes(node.right)
-    return count
-
 class Node:
     def __init__(self, value):
         self.value = value
         self.left = None
         self.right = None
+
+#Operation dict allows us to convert string values into operations
+_OPERATIONDICT = {
+    "+": operator.add, 
+    "-": operator.sub, 
+    "*": operator.mul, 
+    "/": operator.truediv
+}
 
 class Tree:
     def __init__(self):
@@ -79,10 +62,20 @@ class Tree:
         random_num = random.randint(1, num_nodes)
         return self.getNode(self.root, random_num)
 
+    #Returns the tree evaluated given an x
     def get_fitness(self, x):
-        string = self.tree_to_string()
-        return eval(string.replace("x", str(x)))
+        return self._get_fitness_helper(self.root, x)
 
+    def _get_fitness_helper(self, node, x):
+        if node.value not in _OPERATIONDICT.keys():
+            if node.value == 'x':
+                return x
+            else:
+                return float(node.value)
+        else:
+            return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x), self._get_fitness_helper(node.right, x))
+
+    #Returns human readable (kinda) equation
     def tree_to_string(self):
         def traverse(node):
             if node is None:
@@ -90,6 +83,7 @@ class Tree:
             return f"({traverse(node.left)} {node.value} {traverse(node.right)})"
         return traverse(self.root)
 
+    #Gets node based on number in tree
     def getNode(self, node, num):
         myCount = 1
         if node.left:
@@ -101,7 +95,7 @@ class Tree:
         else:
             return self.getNode(node.left,num)
 
-
+    #Counts total number of nodes in tree
     def count_num_nodes(self, node):
         count = 1
         if node.left:
@@ -114,8 +108,9 @@ class Tree:
 
 if __name__ == "__main__":
     tree = Tree()
-    #string = tree.tree_to_string()
+    string = tree.tree_to_string()
     print(tree.tree_to_string())
+    print(tree.get_fitness(1))
 
     # new_tree = copy.deepcopy(tree)
     # new_tree.root.value = "/"
@@ -142,9 +137,7 @@ if __name__ == "__main__":
     # mutated_tree = tree.mutate()
     # print(mutated_tree.tree_to_string())
 
-    tree2 = Tree()
-    print(tree2.tree_to_string())
-    crossover = tree.crossover(tree2)
-    print(crossover.tree_to_string())
-
-
+    # tree2 = Tree()
+    # print(tree2.tree_to_string())
+    # crossover = tree.crossover(tree2)
+    # print(crossover.tree_to_string())
