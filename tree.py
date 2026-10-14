@@ -31,6 +31,7 @@ _OPERATIONDICT = {
 class Tree:
     def __init__(self):
         self.root = generate_random_node(root=True)
+        self.fitness = 0
 
     def clone(self):
         return copy.deepcopy(self)
@@ -46,9 +47,10 @@ class Tree:
         return tree_copy
 
     def crossover(self, other_tree):
-        new_tree1 = copy.deepcopy(self)
+        new_tree1 = self.clone()
+        newTree = other_tree.clone()
         tree1_rand = new_tree1.find_random_node()
-        tree2_rand = other_tree.find_random_node()
+        tree2_rand = newTree.find_random_node()
 
         tree1_rand.value = tree2_rand.value
         tree1_rand.left = tree2_rand.left
@@ -73,7 +75,10 @@ class Tree:
             else:
                 return float(node.value)
         else:
-            return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x), self._get_fitness_helper(node.right, x))
+            right = self._get_fitness_helper(node.right, x)
+            if right == 0 and node.value == '/':
+                return 0
+            return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x), right)
 
     #Returns human readable (kinda) equation
     def tree_to_string(self):

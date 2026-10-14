@@ -2,6 +2,7 @@ import csv
 import random
 from tree import Tree
 from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
 
 def getData():
     DATASETS = ["dataset1.csv", "dataset2.csv", "dataset3.csv"]
@@ -38,18 +39,61 @@ def trueFitness(tree, dataset):
         y_predicted.append(tree.get_fitness(float(row[0])))
     return mean_squared_error(ys, y_predicted)
 
+def fitness_to_weights(population, dataset):
+    for tree in population:
+        tree.fitness = trueFitness(tree, dataset)
+    fitnesses = [t.fitness for t in population]
+    largest = max(fitnesses)
+    weights = [largest - f for f in fitnesses]
+    return weights
 
-        
+def makeTrees(numTrees):
+    trees = []
+    for i in range(numTrees):
+        trees.append(Tree())
+    return trees
 
-    return
+NUM_GENS = 200
+MUTATION_PROB = 0.08
+CROSSOVER_PROB = 0.1
+POPULATION_SIZE = 50
+
 
 dataList = getData()
-
 dataSet1 = dataList[0]
+current_gen = makeTrees(POPULATION_SIZE)
+best = []
 
-myTree = Tree()
-print(myTree.tree_to_string())
-print(trueFitness(myTree, dataSet1))
+i = 0
+for i in range(NUM_GENS):
+    next_gen = []
+    weights = fitness_to_weights(current_gen, dataSet1)
+    # populate next generation
+    for j in range(POPULATION_SIZE):
+        parent1 = random.choices(current_gen, weights)[0]
+        flip = random.random()
+        if flip <= MUTATION_PROB:  # mutation
+            next_gen.append(parent1.mutate())
+        elif flip <= CROSSOVER_PROB + MUTATION_PROB:  # crossover
+            parent2 = random.choices(current_gen, weights)[0]
+            next_gen.append(parent1.crossover(parent2))
+        else:  # clone
+            next_gen.append(parent1)
+            
+    # remember the best individual in this generation
+    best_tour = min(current_gen, key=lambda t: t.fitness)
+    best.append(best_tour)
+    
+    # reset the current gen
+    current_gen = next_gen
+
+for i in range(len(best)):
+    print(i, best[i].tree_to_string())
+
+plt.plot(range(NUM_GENS), [t.fitness for t in best], 'rx-')
+plt.show()
+
+
 
 
 
