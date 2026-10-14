@@ -4,6 +4,9 @@ from tree import Tree
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 
+##PAY ATTENTION HERE##
+#Biggest problem is that we will get something good and it will go away
+
 def getData():
     DATASETS = ["dataset1.csv", "dataset2.csv", "dataset3.csv"]
     listsOfData = []
@@ -39,6 +42,7 @@ def trueFitness(tree, dataset):
         y_predicted.append(tree.get_fitness(float(row[0])))
     return mean_squared_error(ys, y_predicted)
 
+#Punishing largeness would probably be done in here - use method countnumnodes
 def fitness_to_weights(population, dataset):
     for tree in population:
         tree.fitness = trueFitness(tree, dataset)
@@ -53,10 +57,12 @@ def makeTrees(numTrees):
         trees.append(Tree())
     return trees
 
-NUM_GENS = 200
-MUTATION_PROB = 0.08
+#Obviously these should be changed to be as good as possible
+#This one is insane but i wanted to leave it running so im pushing with it
+NUM_GENS = 1000
+MUTATION_PROB = 0.02
 CROSSOVER_PROB = 0.1
-POPULATION_SIZE = 50
+POPULATION_SIZE = 500
 
 
 dataList = getData()
@@ -70,6 +76,8 @@ for i in range(NUM_GENS):
     weights = fitness_to_weights(current_gen, dataSet1)
     # populate next generation
     for j in range(POPULATION_SIZE):
+        #This breaks when all fitness are the same (like can happen if we do really good)
+        #Should make a break in that case
         parent1 = random.choices(current_gen, weights)[0]
         flip = random.random()
         if flip <= MUTATION_PROB:  # mutation
@@ -88,7 +96,7 @@ for i in range(NUM_GENS):
     current_gen = next_gen
 
 for i in range(len(best)):
-    print(i, best[i].tree_to_string())
+    print(i, best[i].tree_to_string(), best[i].fitness)
 
 plt.plot(range(NUM_GENS), [t.fitness for t in best], 'rx-')
 plt.show()
