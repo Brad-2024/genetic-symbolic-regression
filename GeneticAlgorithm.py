@@ -4,6 +4,7 @@ import random
 from MultiValTree import Tree
 import sklearn
 import matplotlib.pyplot as plt
+import math
 
 ##PAY ATTENTION HERE##
 #Biggest problem is that we will get something good and it will go away
@@ -15,6 +16,8 @@ import matplotlib.pyplot as plt
 #Actually check for bloat
 #Do the crossover from the paper
 #Find more good papers on what to do 
+#Maybe a good seed Population
+#Train test split
 
 #ToDo if time allows/if struggling
 #Have a diversity checker
@@ -48,29 +51,47 @@ def getTrainTest(dataList, testSize):
 #This will only work for the 1 x version. Can change later with an override if len(dataset[0]) > 2
 #Lowkey, traversing and doing calcs on the tree might not be the fastest way. can we simplify and then switch X out?
 def trueFitness(tree, dataset):
-    ys = []
     y_predicted = []
     if(len(dataset[0]) == 2):
         for row in dataset:
-            ys.append(row[1])
-            y_predicted.append(round(tree.get_fitness(float(row[0])), 2))
+            y_predicted.append(tree.get_fitness(float(row[0])), 2)
     elif(len(dataset[0]) == 4):
         for row in dataset:
-            ys.append(row[3])
             y_predicted.append(round(tree.get_fitness(float(row[0]), float(row[1]), float(row[2])), 2))
-    return sklearn.metrics.mean_squared_error(ys, y_predicted)
-
+    # return sklearn.metrics.mean_squared_error(ys, y_predicted)
+    return sklearn.metrics.mean_absolute_error(ys, y_predicted)
+    
 #Punishing largeness would probably be done in here - use method countnumnodes
 def fitness_to_weights(population, dataset):
     for tree in population:
         tree.fitness = trueFitness(tree, dataset)
         #Just random ass numbers bro
         numberNodes = tree.count_num_nodes(tree.root)
-        if numberNodes > 15:
-            tree.fitness = tree.fitness + (numberNodes-15)**1.25
+        if numberNodes > 20:
+            tree.fitness = tree.fitness + (numberNodes-20)**1.05
     fitnesses = [t.fitness for t in population]
-    largest = max(fitnesses)
-    weights = [largest - f for f in fitnesses]
+    #This worked for 1 where there werent as many outliers i 
+    # largest = max(fitnesses)
+    # weights = [largest - f for f in fitnesses]
+    #Log didnt help much
+    # largest = math.log(max(fitnesses))
+    # weights = [largest - math.log(f) for f in fitnesses]
+    order = sorted(range(len(population)), key=lambda i: fitnesses[i])
+    weights = [0.0] * len(population)
+
+    start = 0
+    while start < len(order):
+        end = start + 1
+        while end < len(order) and fitnesses[order[end]] == fitnesses[order[start]]:
+            end += 1
+
+        # Give tied fitnesses the average weight for their rank positions.
+        average_weight = len(population) - (start + end - 1) / 2
+        for position in range(start, end):
+            weights[order[position]] = average_weight
+
+        start = end
+
     return weights
 
 def makeTrees(numTrees):
@@ -81,16 +102,26 @@ def makeTrees(numTrees):
 
 #Obviously these should be changed to be as good as possible
 #This one is insane but i wanted to leave it running so im pushing with it
-NUM_GENS = 500
-MUTATION_PROB = 0.13
-CROSSOVER_PROB = 0.16
-POPULATION_SIZE = 250
+NUM_GENS = 2000
+MUTATION_PROB = 0.2
+CROSSOVER_PROB = 0.2
+POPULATION_SIZE = 500
 
 
 dataList = getData()
 dataSet1 = dataList[1]
 # dataSet1, TestSet = sklearn.model_selection.train_test_split(firstSet, test_size=0.2)
 current_gen = makeTrees(POPULATION_SIZE)
+ys = []
+
+if(len(dataSet1[0]) == 2):
+    for row in dataSet1:
+        ys.append(row[1])
+elif len(dataSet1[0]) == 4:
+    for row in dataSet1:
+        ys.append(row[3])
+
+    
 best = []
 
 try:
@@ -98,9 +129,9 @@ try:
         next_gen = []
         weights = fitness_to_weights(current_gen, dataSet1)
         # populate next generation
-        for j in range(POPULATION_SIZE):
-            #This breaks when all fitness are the same (like can happen if we do really good)
-            #Should make a break in that case
+        best_tour = min(current_gen, key=lambda t: t.fitness)
+        next_gen.append(best_tour)
+        for j in range(POPULATION_SIZE-1):
             parent1 = random.choices(current_gen, weights)[0]
             flip = random.random()
             if flip <= MUTATION_PROB:  # mutation
@@ -109,23 +140,24 @@ try:
                 parent2 = random.choices(current_gen, weights)[0]
                 next_gen.append(parent1.crossover(parent2))
             else:  # clone
-                next_gen.append(parent1)
+                next_gen.append(parent1.clone())
                 
         # remember the best individual in this generation
-        best_tour = min(current_gen, key=lambda t: t.fitness)
         best.append(best_tour)
         
         # reset the current gen
         current_gen = next_gen
-        print(f"gen {i} finished")
+        unique_trees = len({tree.tree_to_string() for tree in current_gen})
+        print(f"gen {i} finished. {unique_trees} different trees. Best fitness: {best_tour.fitness}.")
+        print(best_tour.tree_to_string())
         if(best_tour.fitness<1):
             print("Candidate found: " + best_tour.tree_to_string())
 
 except KeyboardInterrupt:
     print("Interrupted. Showing results from completed generations.")
 
-except ValueError:
-    print("Converged trees. Showing results so far.")
+# except ValueError:
+#     print("Converged trees. Showing results so far.")
 
 if best:
     for i in range(len(best)):

@@ -2,12 +2,19 @@ import random
 import copy
 import operator
     
+def random_constant():
+    magnitude = 10 ** random.uniform(-8, 8)
+    magnitude = str(magnitude)
+    return magnitude
 
 def generate_random_node(root=False):
     if root:
         allowed_values = ['+', '-', '*', '/']
     else:
-        allowed_values = ['+', '-', '*', '/', 'x1', 'x1', 'x2', 'x2', 'x3', 'x3', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+        allowed_values = ['+', '-', '*', '/', 'x1', 'x1', 'x2', 'x2', 'x3', 'x3', 
+                          '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                          random_constant(),random_constant(),random_constant(),random_constant(),
+                          random_constant(),random_constant()]
     node = Node(random.choice(allowed_values))
     if node.value in ['+', '-', '*', '/']:
         node.left = generate_random_node()
