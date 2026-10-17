@@ -68,7 +68,7 @@ def fitness_to_weights(population, dataset):
         #Just random ass numbers bro
         numberNodes = tree.count_num_nodes(tree.root)
         if numberNodes > 20:
-            tree.fitness = tree.fitness + (numberNodes-20)**1.05
+            tree.fitness = tree.fitness + (numberNodes-20)**1.5
     fitnesses = [t.fitness for t in population]
     #This worked for 1 where there werent as many outliers i 
     # largest = max(fitnesses)
@@ -138,7 +138,8 @@ try:
                 next_gen.append(parent1.mutate())
             elif flip <= CROSSOVER_PROB + MUTATION_PROB:  # crossover
                 parent2 = random.choices(current_gen, weights)[0]
-                next_gen.append(parent1.crossover(parent2))
+                # next_gen.append(parent1.crossover(parent2))
+                next_gen.append(parent1.size_fair_crossover(parent2))
             else:  # clone
                 next_gen.append(parent1.clone())
                 

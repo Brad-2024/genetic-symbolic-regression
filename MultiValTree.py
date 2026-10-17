@@ -65,6 +65,33 @@ class Tree:
 
         return new_tree1
 
+    #
+    def size_fair_crossover(self, other_tree):
+        new_tree1 = self.clone()
+        newTree = other_tree.clone()
+
+        tree1_nodes = self._nodes_with_subtree_sizes(new_tree1.root)
+        newTree_nodes = newTree._nodes_with_subtree_sizes(newTree.root)
+
+        recipient_node, recipient_size = random.choice(tree1_nodes)
+
+        eligible = [
+            (node, size)
+            for node, size in newTree_nodes
+            if recipient_size / 2 <= size <= recipient_size * 2
+        ]
+
+        donor_node, _ = (
+            random.choice(eligible)
+            if eligible
+            else min(newTree_nodes, key=lambda item: abs(item[1] - recipient_size))
+        )
+
+        recipient_node.value = donor_node.value
+        recipient_node.left = donor_node.left
+        recipient_node.right = donor_node.right
+        return new_tree1
+
     def find_random_node(self):
         baseNode = self.root
         num_nodes = self.count_num_nodes(baseNode)
@@ -120,7 +147,18 @@ class Tree:
             count = count + self.count_num_nodes(node.right)
         return count
 
+    def _nodes_with_subtree_sizes(self, root):
+        nodes = []
 
+        def visit(node):
+            left_size = visit(node.left) if node.left else 0
+            right_size = visit(node.right) if node.right else 0
+            size = 1 + left_size + right_size
+            nodes.append((node, size))
+            return size
+
+        visit(root)
+        return nodes
 
 if __name__ == "__main__":
     tree = Tree()
