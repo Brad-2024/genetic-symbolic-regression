@@ -36,12 +36,12 @@ def getTrainTest(dataList, testSize):
 
 #This will only work for the 1 x version. Can change later with an override if len(dataset[0]) > 2
 #Lowkey, traversing and doing calcs on the tree might not be the fastest way. can we simplify and then switch X out?
-def trueFitness(tree, dataset):
+def trueFitness(tree, dataset, num_x_vals=1):
     ys = []
     y_predicted = []
     for row in dataset:
-        ys.append(row[1])
-        y_predicted.append(tree.get_fitness(float(row[0])))
+        ys.append(row[num_x_vals])
+        y_predicted.append(tree.get_fitness([float(x) for x in row[:num_x_vals]]))
     return sklearn.metrics.mean_squared_error(ys, y_predicted)
 
 #Punishing largeness would probably be done in here - use method countnumnodes
