@@ -3,15 +3,18 @@ import copy
 import operator
     
 
-def generate_random_node(root=False):
+def generate_random_node(root=False, num_x_vals=1):
     if root:
         allowed_values = ['+', '-', '*', '/']
     else:
         allowed_values = ['+', '-', '*', '/', 'x', 'x', 'x', 'x', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     node = Node(random.choice(allowed_values))
+    if node.value == 'x':
+        x_num = random.randint(1, num_x_vals)
+        node.value = 'x' + str(x_num)
     if node.value in ['+', '-', '*', '/']:
-        node.left = generate_random_node()
-        node.right = generate_random_node()
+        node.left = generate_random_node(num_x_vals=num_x_vals)
+        node.right = generate_random_node(num_x_vals=num_x_vals)
     return node
 
 class Node:
@@ -29,9 +32,10 @@ _OPERATIONDICT = {
 }
 
 class Tree:
-    def __init__(self):
-        self.root = generate_random_node(root=True)
+    def __init__(self, num_x_vals=1):
+        self.root = generate_random_node(root=True, num_x_vals=num_x_vals)
         self.fitness = 0
+        self.num_x_vals = num_x_vals
 
     def clone(self):
         return copy.deepcopy(self)
@@ -39,7 +43,7 @@ class Tree:
     def mutate(self):
         tree_copy = self.clone()
         rand_node = tree_copy.find_random_node()
-        new_subtree = generate_random_node()
+        new_subtree = generate_random_node(num_x_vals=self.num_x_vals)
         rand_node.value = new_subtree.value
         rand_node.left = new_subtree.left
         rand_node.right = new_subtree.right
@@ -65,20 +69,22 @@ class Tree:
         return self.getNode(self.root, random_num)
 
     #Returns the tree evaluated given an x
-    def get_fitness(self, x):
-        return self._get_fitness_helper(self.root, x)
+    def get_fitness(self, x_vals):
+        return self._get_fitness_helper(self.root, x_vals)
 
-    def _get_fitness_helper(self, node, x):
+    def _get_fitness_helper(self, node, x_vals):
         if node.value not in _OPERATIONDICT.keys():
-            if node.value == 'x':
+            if 'x' in node.value:
+                x_index = int(node.value[1:]) - 1
+                x = x_vals[x_index]
                 return x
             else:
                 return float(node.value)
         else:
-            right = self._get_fitness_helper(node.right, x)
+            right = self._get_fitness_helper(node.right, x_vals)
             if right == 0 and node.value == '/':
                 return 0
-            return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x), right)
+            return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x_vals), right)
 
     #Returns human readable (kinda) equation
     def tree_to_string(self):
@@ -112,10 +118,10 @@ class Tree:
 
 
 if __name__ == "__main__":
-    tree = Tree()
+    tree = Tree(num_x_vals=2)
     string = tree.tree_to_string()
     print(tree.tree_to_string())
-    print(tree.get_fitness(1))
+    print(tree.get_fitness([1,2]))
 
     # new_tree = copy.deepcopy(tree)
     # new_tree.root.value = "/"
