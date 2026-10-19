@@ -47,6 +47,10 @@ def trueFitness(tree, dataset, num_x_vals=1, dataset_num=1):
     if not np.all(np.isfinite(y_predicted)):
         return float('inf')
 
+    if dataset_num == 1:
+        return np.mean((ys - y_predicted) ** 2)
+    elif dataset_num == 2:
+        return np.mean(np.abs(ys - y_predicted) / (np.abs(ys) + 1))
     for tree in population:
         tree.fitness = trueFitness(tree, dataset, num_x_vals=tree.num_x_vals)
         #Just random ass numbers bro
