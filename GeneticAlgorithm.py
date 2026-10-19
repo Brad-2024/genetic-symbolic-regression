@@ -51,16 +51,17 @@ def trueFitness(tree, dataset, num_x_vals=1, dataset_num=1):
         return np.mean((ys - y_predicted) ** 2)
     elif dataset_num == 2:
         return np.mean(np.abs(ys - y_predicted) / (np.abs(ys) + 1))
+
+def calculate_fitness(population, dataset, dataset_num=1):
     for tree in population:
-        tree.fitness = trueFitness(tree, dataset, num_x_vals=tree.num_x_vals)
-        #Just random ass numbers bro
+        tree.fitness = trueFitness(
+            tree, dataset, num_x_vals=tree.num_x_vals, dataset_num=dataset_num
+        )
+
         numberNodes = tree.count_num_nodes(tree.root)
+
         if numberNodes > 15:
-            tree.fitness = tree.fitness + (numberNodes-15)**1.25
-    fitnesses = [t.fitness for t in population]
-    largest = max(fitnesses)
-    weights = [largest - f for f in fitnesses]
-    return weights
+            tree.fitness += 0.001 * (numberNodes - 15) ** 1.25
 
 def makeTrees(numTrees, num_x_vals=1):
     trees = []
