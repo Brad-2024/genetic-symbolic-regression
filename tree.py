@@ -1,6 +1,7 @@
 import random
 import copy
 import operator
+import numpy as np
     
 
 def generate_random_node(root=False, num_x_vals=1):
