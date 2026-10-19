@@ -52,7 +52,7 @@ def trueFitness(tree, dataset, num_x_vals=1, dataset_num=1):
     elif dataset_num == 2:
         return np.mean(np.abs(ys - y_predicted) / (np.abs(ys) + 1))
 
-def calculate_fitness(population, dataset, dataset_num=1):
+def calculate_fitness(population, dataset, dataset_num=1, lamda=0.01):
     for tree in population:
         tree.fitness = trueFitness(
             tree, dataset, num_x_vals=tree.num_x_vals, dataset_num=dataset_num
@@ -61,7 +61,7 @@ def calculate_fitness(population, dataset, dataset_num=1):
         numberNodes = tree.count_num_nodes(tree.root)
 
         if numberNodes > 15:
-            tree.fitness += 0.001 * (numberNodes - 15) ** 1.25
+            tree.fitness += lamda * (numberNodes - 15) ** 1.25
 
 
 def tournament_selection(population, tournament_size=3):
@@ -123,7 +123,7 @@ best = []
 
 try:
     for i in range(NUM_GENS):
-        calculate_fitness(current_gen, dataset, dataset_num=dataset_num)
+        calculate_fitness(current_gen, dataset, dataset_num=dataset_num, lamda=lamda)
 
         elite = min(current_gen, key=lambda t: t.fitness)
 
