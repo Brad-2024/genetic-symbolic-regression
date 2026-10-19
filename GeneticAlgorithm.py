@@ -115,6 +115,7 @@ POPULATION_SIZE = 500
 num_x_vals = 1
 dataset_num = 1
 dataset = dataSet1
+lamda = 0.001
 
 
 # dataSet1, TestSet = sklearn.model_selection.train_test_split(firstSet, test_size=0.2)
