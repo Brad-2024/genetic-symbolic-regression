@@ -63,6 +63,11 @@ def calculate_fitness(population, dataset, dataset_num=1):
         if numberNodes > 15:
             tree.fitness += 0.001 * (numberNodes - 15) ** 1.25
 
+
+def tournament_selection(population, tournament_size=3):
+    competitors = random.sample(population, tournament_size)
+    return min(competitors, key=lambda t: t.fitness)
+
 def makeTrees(numTrees, num_x_vals=1):
     trees = []
     for i in range(numTrees):
