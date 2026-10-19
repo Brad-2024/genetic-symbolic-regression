@@ -135,12 +135,12 @@ try:
         for j in range(POPULATION_SIZE - 1 - rand_num):
             #This breaks when all fitness are the same (like can happen if we do really good)
             #Should make a break in that case
-            parent1 = random.choices(current_gen, weights)[0]
+            parent1 = tournament_selection(current_gen)
             flip = random.random()
             if flip <= MUTATION_PROB:  # mutation
                 next_gen.append(parent1.mutate())
             elif flip <= CROSSOVER_PROB + MUTATION_PROB:  # crossover
-                parent2 = random.choices(current_gen, weights)[0]
+                parent2 = tournament_selection(current_gen)
                 next_gen.append(parent1.crossover(parent2))
             else:  # clone
                 next_gen.append(parent1)
