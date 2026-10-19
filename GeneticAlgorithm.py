@@ -102,10 +102,10 @@ def makeTrees(numTrees):
 
 #Obviously these should be changed to be as good as possible
 #This one is insane but i wanted to leave it running so im pushing with it
-NUM_GENS = 2000
+NUM_GENS = 5000
 MUTATION_PROB = 0.2
 CROSSOVER_PROB = 0.2
-POPULATION_SIZE = 500
+POPULATION_SIZE = 100
 
 
 dataList = getData()
