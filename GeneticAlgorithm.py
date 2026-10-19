@@ -3,6 +3,7 @@ import random
 from tree import Tree
 import sklearn
 import matplotlib.pyplot as plt
+import numpy as np
 
 ##PAY ATTENTION HERE##
 #Biggest problem is that we will get something good and it will go away
