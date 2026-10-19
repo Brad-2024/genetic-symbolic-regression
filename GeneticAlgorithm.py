@@ -74,8 +74,40 @@ def makeTrees(numTrees, num_x_vals=1):
         trees.append(Tree(num_x_vals=num_x_vals))
     return trees
 
+
+def scale_features(dataset, num_x_vals):
+    dataset = dataset.copy()
+
+    scales = []
+
+    for i in range(num_x_vals):
+        x = dataset[:, i]
+
+        median_magnitude = np.median(np.abs(x))
+
+        if median_magnitude > 0:
+            scale = 10 ** np.floor(np.log10(median_magnitude))
+        else:
+            scale = 1.0
+
+        dataset[:, i] /= scale
+        scales.append(scale)
+
+    return dataset, scales
+
 #Obviously these should be changed to be as good as possible
 #This one is insane but i wanted to leave it running so im pushing with it
+dataList = getData()
+dataSet1 = dataList[0]
+# make dataset1 a numpy array of floats
+dataSet1 = np.array(dataSet1, dtype=float)
+dataSet2 = dataList[1]
+# make dataset2 a numpy array of floats
+dataSet2 = np.array(dataSet2, dtype=float)
+dataSet2, scales = scale_features(dataSet2, num_x_vals=3)
+
+print("Scaling factors:", scales)
+
 NUM_GENS = 50
 MUTATION_PROB = 0.2
 CROSSOVER_PROB = 0.3
@@ -129,7 +161,13 @@ except KeyboardInterrupt:
 
 if best:
     for i in range(len(best)):
-        print(i, best[i].tree_to_string(), best[i].fitness)
+        if dataset_num == 2:
+            equation_string = best[i].tree_to_string()
+            for j in range(num_x_vals):
+                equation_string = equation_string.replace(f"x{j+1}", f"(x{j+1}/{scales[j]})")
+            print(i, equation_string, best[i].fitness)
+        else:
+            print(i, best[i].tree_to_string(), best[i].fitness)
 
     plt.plot(range(len(best)), [t.fitness for t in best], 'rx-')
     plt.show()
