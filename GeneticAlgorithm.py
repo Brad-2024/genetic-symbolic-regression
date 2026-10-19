@@ -37,16 +37,16 @@ def getTrainTest(dataList, testSize):
 
 #This will only work for the 1 x version. Can change later with an override if len(dataset[0]) > 2
 #Lowkey, traversing and doing calcs on the tree might not be the fastest way. can we simplify and then switch X out?
-def trueFitness(tree, dataset, num_x_vals=1):
-    ys = []
-    y_predicted = []
-    for row in dataset:
-        ys.append(row[num_x_vals])
-        y_predicted.append(tree.get_fitness([float(x) for x in row[:num_x_vals]]))
-    return sklearn.metrics.mean_squared_error(ys, y_predicted)
+def trueFitness(tree, dataset, num_x_vals=1, dataset_num=1):
+    xs = dataset[:, :num_x_vals]
+    ys = dataset[:, num_x_vals]
 
-#Punishing largeness would probably be done in here - use method countnumnodes
-def fitness_to_weights(population, dataset):
+    y_predicted = tree.get_fitness(xs)
+    y_predicted = np.broadcast_to(y_predicted, ys.shape)
+
+    if not np.all(np.isfinite(y_predicted)):
+        return float('inf')
+
     for tree in population:
         tree.fitness = trueFitness(tree, dataset, num_x_vals=tree.num_x_vals)
         #Just random ass numbers bro
