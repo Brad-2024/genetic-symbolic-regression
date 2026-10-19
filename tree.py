@@ -71,21 +71,36 @@ class Tree:
 
     #Returns the tree evaluated given an x
     def get_fitness(self, x_vals):
-        return self._get_fitness_helper(self.root, x_vals)
+        y_hats = self._get_fitness_helper(self.root, x_vals)
+        return y_hats
 
     def _get_fitness_helper(self, node, x_vals):
-        if node.value not in _OPERATIONDICT.keys():
-            if 'x' in node.value:
+        if node.left is None and node.right is None:
+            if "x" in node.value:
                 x_index = int(node.value[1:]) - 1
-                x = x_vals[x_index]
-                return x
+                return x_vals[:, x_index]
             else:
                 return float(node.value)
-        else:
-            right = self._get_fitness_helper(node.right, x_vals)
-            if right == 0 and node.value == '/':
-                return 0
-            return _OPERATIONDICT[node.value](self._get_fitness_helper(node.left, x_vals), right)
+
+        left_val = self._get_fitness_helper(node.left, x_vals)
+        right_val = self._get_fitness_helper(node.right, x_vals)
+
+        if node.value == "+":
+            return left_val + right_val
+        elif node.value == "-":
+            return left_val - right_val
+        elif node.value == "*":
+            return left_val * right_val
+        elif node.value == "/":
+            left_val = np.array(left_val, dtype=np.float64)
+            right_val = np.array(right_val, dtype=np.float64)
+
+            with np.errstate(divide='ignore', invalid='ignore', over='ignore'):
+                result = np.divide(
+                    left_val, right_val, out=np.ones(np.broadcast_shapes(left_val.shape, right_val.shape)), where=np.abs(right_val) > 1e-8
+                )
+
+            return result
 
     #Returns human readable (kinda) equation
     def tree_to_string(self):
