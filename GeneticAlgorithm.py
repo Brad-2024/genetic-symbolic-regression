@@ -111,13 +111,12 @@ print("Scaling factors:", scales)
 NUM_GENS = 50
 MUTATION_PROB = 0.2
 CROSSOVER_PROB = 0.3
-POPULATION_SIZE = 50
+POPULATION_SIZE = 500
 num_x_vals = 1
+dataset_num = 1
+dataset = dataSet1
 
 
-dataList = getData()
-dataSet1 = dataList[0]
-dataSet2 = dataList[1]
 # dataSet1, TestSet = sklearn.model_selection.train_test_split(firstSet, test_size=0.2)
 current_gen = makeTrees(POPULATION_SIZE, num_x_vals=num_x_vals)
 best = []
@@ -152,7 +151,7 @@ try:
         best.append(best_tour)
         print("Fitness:", best_tour.fitness)
 
-        print("Raw MSE:", trueFitness(best_tour, dataSet1, num_x_vals=num_x_vals))
+        print("Raw MSE:", trueFitness(best_tour, dataset, num_x_vals=num_x_vals, dataset_num=dataset_num))
 
         print("Nodes:", best_tour.count_num_nodes(best_tour.root))
         
