@@ -124,7 +124,7 @@ best = []
 
 try:
     for i in range(NUM_GENS):
-        weights = fitness_to_weights(current_gen, dataSet1)
+        calculate_fitness(current_gen, dataset, dataset_num=dataset_num)
 
         elite = min(current_gen, key=lambda t: t.fitness)
 
