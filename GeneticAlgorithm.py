@@ -47,7 +47,7 @@ def trueFitness(tree, dataset, num_x_vals=1):
 #Punishing largeness would probably be done in here - use method countnumnodes
 def fitness_to_weights(population, dataset):
     for tree in population:
-        tree.fitness = trueFitness(tree, dataset)
+        tree.fitness = trueFitness(tree, dataset, num_x_vals=tree.num_x_vals)
         #Just random ass numbers bro
         numberNodes = tree.count_num_nodes(tree.root)
         if numberNodes > 15:
@@ -57,32 +57,37 @@ def fitness_to_weights(population, dataset):
     weights = [largest - f for f in fitnesses]
     return weights
 
-def makeTrees(numTrees):
+def makeTrees(numTrees, num_x_vals=1):
     trees = []
     for i in range(numTrees):
-        trees.append(Tree())
+        trees.append(Tree(num_x_vals=num_x_vals))
     return trees
 
 #Obviously these should be changed to be as good as possible
 #This one is insane but i wanted to leave it running so im pushing with it
-NUM_GENS = 500
-MUTATION_PROB = 0.02
-CROSSOVER_PROB = 0.1
-POPULATION_SIZE = 250
+NUM_GENS = 50
+MUTATION_PROB = 0.2
+CROSSOVER_PROB = 0.3
+POPULATION_SIZE = 50
+num_x_vals = 1
 
 
 dataList = getData()
 dataSet1 = dataList[0]
+dataSet2 = dataList[1]
 # dataSet1, TestSet = sklearn.model_selection.train_test_split(firstSet, test_size=0.2)
-current_gen = makeTrees(POPULATION_SIZE)
+current_gen = makeTrees(POPULATION_SIZE, num_x_vals=num_x_vals)
 best = []
 
 try:
     for i in range(NUM_GENS):
-        next_gen = []
         weights = fitness_to_weights(current_gen, dataSet1)
+
+        elite = min(current_gen, key=lambda t: t.fitness)
+
+        next_gen = [elite]
         # populate next generation
-        for j in range(POPULATION_SIZE):
+        for j in range(POPULATION_SIZE - 1):
             #This breaks when all fitness are the same (like can happen if we do really good)
             #Should make a break in that case
             parent1 = random.choices(current_gen, weights)[0]
@@ -98,6 +103,11 @@ try:
         # remember the best individual in this generation
         best_tour = min(current_gen, key=lambda t: t.fitness)
         best.append(best_tour)
+        print("Fitness:", best_tour.fitness)
+
+        print("Raw MSE:", trueFitness(best_tour, dataSet1, num_x_vals=num_x_vals))
+
+        print("Nodes:", best_tour.count_num_nodes(best_tour.root))
         
         # reset the current gen
         current_gen = next_gen
