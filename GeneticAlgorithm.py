@@ -129,8 +129,10 @@ try:
         elite = min(current_gen, key=lambda t: t.fitness)
 
         next_gen = [elite]
+
+        rand_num = int(POPULATION_SIZE * 0.10)
         # populate next generation
-        for j in range(POPULATION_SIZE - 1):
+        for j in range(POPULATION_SIZE - 1 - rand_num):
             #This breaks when all fitness are the same (like can happen if we do really good)
             #Should make a break in that case
             parent1 = random.choices(current_gen, weights)[0]
@@ -142,6 +144,8 @@ try:
                 next_gen.append(parent1.crossover(parent2))
             else:  # clone
                 next_gen.append(parent1)
+
+        next_gen.extend(makeTrees(rand_num, num_x_vals=num_x_vals))
                 
         # remember the best individual in this generation
         best_tour = min(current_gen, key=lambda t: t.fitness)
