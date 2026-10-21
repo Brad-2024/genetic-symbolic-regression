@@ -1,15 +1,15 @@
 import csv
 import random
 from tree import Tree
-import sklearn
 import matplotlib.pyplot as plt
 import numpy as np
 
-##PAY ATTENTION HERE##
-#Biggest problem is that we will get something good and it will go away
-#Good bloat paper https://link.springer.com/content/pdf/10.1023/A:1010024515191.pdf
-
 def getData():
+    """
+    Reads in the dataset and returns a list of lists of tuples, where each inner list corresponds to a dataset and
+    each tuple corresponds to a row in the dataset.
+    :return: the list of lists of tuples containing the datasets
+    """
     DATASETS = ["dataset1.csv", "dataset2.csv", "dataset3.csv"]
     listsOfData = []
 
@@ -25,19 +25,17 @@ def getData():
         listsOfData.append(dataList)
     return listsOfData
 
-def getTrainTest(dataList, testSize):
-
-    middle = dataList.copy()
-    random.shuffle(middle)
-    test = middle[:testSize]
-    train = middle[testSize:]
-
-
-    return train, test
-
-#This will only work for the 1 x version. Can change later with an override if len(dataset[0]) > 2
-#Lowkey, traversing and doing calcs on the tree might not be the fastest way. can we simplify and then switch X out?
 def trueFitness(tree, dataset, num_x_vals=1, dataset_num=1):
+    """
+    Calculates the true fitness of a tree on a given dataset. The fitness is calculated as the mean squared error (MSE)
+    for dataset 1 and the mean absolute percentage error (MAPE) for dataset 2. If the predicted values are not finite,
+    the fitness is set to infinity.
+    :param tree: the tree for which the fitness is to be calculated
+    :param dataset: the dataset on which the fitness is to be calculated
+    :param num_x_vals: the number of x values in the dataset
+    :param dataset_num: the number of the dataset (1 or 2)
+    :return: the calculated fitness value
+    """
     xs = dataset[:, :num_x_vals]
     ys = dataset[:, num_x_vals]
 
@@ -53,6 +51,14 @@ def trueFitness(tree, dataset, num_x_vals=1, dataset_num=1):
         return np.mean(np.abs(ys - y_predicted) / (np.abs(ys) + 1))
 
 def calculate_fitness(population, dataset, dataset_num=1, lamda=0.01):
+    """
+    Calculates the true fitness of each tree in the population and adds a penalty for trees with more than 15 nodes.
+    :param population: the list of trees for which the fitness is to be calculated
+    :param dataset: the dataset on which the fitness is to be calculated
+    :param dataset_num: the number of the dataset (1 or 2)
+    :param lamda: the penalty factor for trees with more than 15 nodes
+    :return: the calculated fitness values for each tree in the population
+    """
     for tree in population:
         tree.fitness = trueFitness(
             tree, dataset, num_x_vals=tree.num_x_vals, dataset_num=dataset_num
@@ -65,10 +71,22 @@ def calculate_fitness(population, dataset, dataset_num=1, lamda=0.01):
 
 
 def tournament_selection(population, tournament_size=3):
+    """
+    Selects a tree from the population using tournament selection.
+    :param population: the list of trees from which to select
+    :param tournament_size: the number of trees to sample for the tournament
+    :return: the tree with the best fitness from the sampled trees
+    """
     competitors = random.sample(population, tournament_size)
     return min(competitors, key=lambda t: t.fitness)
 
 def makeTrees(numTrees, num_x_vals=1):
+    """
+    Creates a list of random trees.
+    :param numTrees: the number of trees to create
+    :param num_x_vals: the number of x values in the dataset
+    :return: the list of created trees
+    """
     trees = []
     for i in range(numTrees):
         trees.append(Tree(num_x_vals=num_x_vals))
@@ -76,6 +94,12 @@ def makeTrees(numTrees, num_x_vals=1):
 
 
 def scale_features(dataset, num_x_vals):
+    """
+    Scales the features of the dataset by dividing each feature by its median magnitude.
+    :param dataset: the dataset to be scaled
+    :param num_x_vals: the number of x values in the dataset
+    :return: the scaled dataset and the scaling factors for each feature
+    """
     dataset = dataset.copy()
 
     scales = []
@@ -95,8 +119,6 @@ def scale_features(dataset, num_x_vals):
 
     return dataset, scales
 
-#Obviously these should be changed to be as good as possible
-#This one is insane but i wanted to leave it running so im pushing with it
 dataList = getData()
 dataSet1 = dataList[0]
 # make dataset1 a numpy array of floats
@@ -112,10 +134,10 @@ NUM_GENS = 50
 MUTATION_PROB = 0.2
 CROSSOVER_PROB = 0.3
 POPULATION_SIZE = 500
-num_x_vals = 1
-dataset_num = 1
-dataset = dataSet1
+num_x_vals = 3
+dataset_num = 2
 lamda = 0.001
+dataset = dataSet2
 
 
 # dataSet1, TestSet = sklearn.model_selection.train_test_split(firstSet, test_size=0.2)

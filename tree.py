@@ -1,10 +1,15 @@
 import random
 import copy
-import operator
 import numpy as np
     
 
 def generate_random_node(root=False, num_x_vals=1):
+    """
+    Generates a random node for the tree. If root is True, only operators are allowed. If root is False, both operators and operands are allowed.
+    :param root: whether the node is the root of the tree or not
+    :param num_x_vals: the number of x values to be used in the tree
+    :return: the generated node
+    """
     if root:
         allowed_values = ['+', '-', '*', '/']
     else:
@@ -19,29 +24,43 @@ def generate_random_node(root=False, num_x_vals=1):
     return node
 
 class Node:
+    """
+    A class representing a node in a binary tree. Each node has a value, a left child, and a right child.
+    """
     def __init__(self, value):
+        """
+        Initializes a Node with a given value. The left and right children are initialized to None.
+        :param value: the value of the node
+        """
         self.value = value
         self.left = None
         self.right = None
 
-#Operation dict allows us to convert string values into operations
-_OPERATIONDICT = {
-    "+": operator.add, 
-    "-": operator.sub, 
-    "*": operator.mul, 
-    "/": operator.truediv
-}
-
 class Tree:
+    """
+    A class representing a binary tree. The tree has a root node and a fitness value. The tree can be mutated and crossed over with another tree.
+    """
     def __init__(self, num_x_vals=1):
+        """
+        Initializes a Tree with a random root node. The fitness value is initialized to 0. The number of x values is set to the given value.
+        :param num_x_vals: the number of x values from the dataset to be used in the tree
+        """
         self.root = generate_random_node(root=True, num_x_vals=num_x_vals)
         self.fitness = 0
         self.num_x_vals = num_x_vals
 
     def clone(self):
+        """
+        Clones the tree by creating a deep copy of it.
+        :return: the cloned tree
+        """
         return copy.deepcopy(self)
 
     def mutate(self):
+        """
+        Mutates the tree by replacing a random node with a new randomly generated subtree.
+        :return: the mutated tree
+        """
         tree_copy = self.clone()
         rand_node = tree_copy.find_random_node()
         new_subtree = generate_random_node(num_x_vals=self.num_x_vals)
@@ -52,6 +71,11 @@ class Tree:
         return tree_copy
 
     def crossover(self, other_tree):
+        """
+        Performs crossover between this tree and another tree by replacing a random node in this tree with a random node from the other tree.
+        :param other_tree: the other tree to crossover with
+        :return: the new tree resulting from the crossover
+        """
         new_tree1 = self.clone()
         newTree = other_tree.clone()
         tree1_rand = new_tree1.find_random_node()
@@ -64,6 +88,11 @@ class Tree:
         return new_tree1
 
     def find_random_node(self):
+        """
+        Finds a random node in the tree by generating a random number between 1 and the total number of nodes in the
+        tree, and then traversing the tree to find the corresponding node.
+        :return: The randomly selected node
+        """
         baseNode = self.root
         num_nodes = self.count_num_nodes(baseNode)
         random_num = random.randint(1, num_nodes)
@@ -71,10 +100,21 @@ class Tree:
 
     #Returns the tree evaluated given an x
     def get_fitness(self, x_vals):
+        """
+        Calculates the fitness of a random tree, evaluating the tree with the given x values.
+        :param x_vals: a numpy array of x values to evaluate the tree with
+        :return: the predicted y values from the tree evaluation
+        """
         y_hats = self._get_fitness_helper(self.root, x_vals)
         return y_hats
 
     def _get_fitness_helper(self, node, x_vals):
+        """
+        Helper function to recursively evaluate the tree and calculate the predicted y values.
+        :param node: the current node being evaluated
+        :param x_vals: a numpy array of x values to evaluate the tree with
+        :return: the predicted y values from the tree evaluation
+        """
         if node.left is None and node.right is None:
             if "x" in node.value:
                 x_index = int(node.value[1:]) - 1
@@ -102,16 +142,24 @@ class Tree:
 
             return result
 
-    #Returns human readable (kinda) equation
     def tree_to_string(self):
+        """
+        Converts the tree to a string representation.
+        :return: the string representation of the tree
+        """
         def traverse(node):
             if node is None:
                 return ""
             return f"({traverse(node.left)} {node.value} {traverse(node.right)})"
         return traverse(self.root)
 
-    #Gets node based on number in tree
     def getNode(self, node, num):
+        """
+        Gets the node at the given position in the tree.
+        :param node:
+        :param num:
+        :return:
+        """
         myCount = 1
         if node.left:
             myCount = self.count_num_nodes(node.left) + 1
@@ -122,8 +170,12 @@ class Tree:
         else:
             return self.getNode(node.left,num)
 
-    #Counts total number of nodes in tree
     def count_num_nodes(self, node):
+        """
+        Counts the number of nodes in the tree.
+        :param node: The current node being counted
+        :return: the total number of nodes in the tree
+        """
         count = 1
         if node.left:
             count = count + self.count_num_nodes(node.left)
