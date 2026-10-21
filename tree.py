@@ -1,3 +1,10 @@
+"""
+Filename: tree.py
+Author: Bradley Cruthirds & James Durcan
+Date: 2026-10-21
+Description: Defines the Node and Tree classes.
+"""
+
 import random
 import copy
 import numpy as np

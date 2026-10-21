@@ -1,3 +1,10 @@
+"""
+Filename: GeneticAlgorithm.py
+Author: Bradley Cruthirds & James Durcan
+Date: 2026-10-21
+Description: Performs a genetic algorithm to evolve a population of trees to fit a given dataset.
+"""
+
 import csv
 import random
 from tree import Tree
