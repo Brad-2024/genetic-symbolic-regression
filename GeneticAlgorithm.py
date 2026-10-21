@@ -147,7 +147,6 @@ lamda = 0.001
 dataset = dataSet2
 
 
-# dataSet1, TestSet = sklearn.model_selection.train_test_split(firstSet, test_size=0.2)
 current_gen = makeTrees(POPULATION_SIZE, num_x_vals=num_x_vals)
 best = []
 
@@ -162,8 +161,6 @@ try:
         rand_num = int(POPULATION_SIZE * 0.10)
         # populate next generation
         for j in range(POPULATION_SIZE - 1 - rand_num):
-            #This breaks when all fitness are the same (like can happen if we do really good)
-            #Should make a break in that case
             parent1 = tournament_selection(current_gen)
             flip = random.random()
             if flip <= MUTATION_PROB:  # mutation
